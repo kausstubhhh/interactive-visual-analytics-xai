@@ -1,46 +1,21 @@
 # Interactive Visual Analytics for Explaining and Comparing Classification Models
 
-## MSc Project – Advanced Computer Science (Data Analytics)
+MSc Project – Advanced Computer Science (Data Analytics)
 
-This project investigates how interactive visual analytics can enhance the interpretability and comparative understanding of classification models.
+## Project Summary
 
-Modern machine learning classifiers often achieve high predictive performance but remain difficult to interpret. While traditional evaluation metrics such as accuracy and F1-score provide quantitative assessment, they do not offer intuitive insight into model behaviour, decision boundaries, or feature influence. This project aims to bridge that gap by designing and implementing an interactive visual system that enables users to explore, compare, and explain classification models in a structured and transparent manner.
+This project investigates the use of interactive visual analytics to improve the interpretability and comparative analysis of classification models.
 
----
+Although classification algorithms can achieve strong predictive performance, their internal decision-making processes are often difficult to interpret. Traditional evaluation metrics such as accuracy, precision, recall, and F1-score provide numerical assessment but do not fully support intuitive understanding of model behaviour.
 
-## Research Objectives
+The aim of this project is to design and develop an interactive system that enables structured comparison of multiple classification models while integrating explainability techniques to enhance transparency.
 
-The primary objectives of this project are:
+## Objectives
 
-- To implement and evaluate multiple classification models (e.g., Logistic Regression, Random Forest, SVM).
-- To design visual tools for side-by-side model comparison.
-- To integrate explainability techniques (e.g., feature importance, SHAP values).
-- To develop an interactive interface for exploring predictions and model behaviour.
-- To assess how visual analytics can improve interpretability beyond traditional performance metrics.
+- Implement and evaluate baseline classification models.
+- Compare model performance using standard evaluation metrics.
+- Integrate model explanation techniques to analyse feature influence.
+- Develop interactive visual components to support comparative analysis.
+- Assess how visual analytics can improve understanding beyond numerical metrics alone.
 
----
-
-## Project Scope
-
-The system is structured around three core layers:
-
-### 1. Modelling Layer
-- Data preprocessing and feature engineering
-- Baseline model implementation
-- Training and prediction pipelines
-
-### 2. Evaluation & Comparison Layer
-- Accuracy, Precision, Recall, F1-score
-- Confusion matrices
-- ROC curves
-- Cross-model comparison metrics
-
-### 3. Explainability & Visual Analytics Layer
-- Feature importance analysis
-- SHAP-based explanation methods (if applicable)
-- Interactive visualization of prediction behaviour
-- Comparative visual dashboards
-
----
-
-## Repository Structure
+This work contributes to improving transparency and human-centred interpretation in supervised machine learning.
