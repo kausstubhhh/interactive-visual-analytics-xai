@@ -1,26 +1,36 @@
 from src.data.loader import load_demo_dataset
-from src.data.validator import dataset_summary
-from src.data.validator import missing_values_report
-from src.data.validator import column_types
-
+from src.data.validator import (
+    dataset_summary,
+    get_column_names,
+    column_types,
+    missing_values_report
+)
 
 print("\nHELOC")
-print("=" * 50)
+print("=" * 60)
 
 heloc = load_demo_dataset("heloc")
 
+print("\nSUMMARY")
 print(dataset_summary(heloc))
+
+print("\nFIRST 10 COLUMNS")
+print(get_column_names(heloc)[:10])
 
 print("\nCOLUMN TYPES")
 print(column_types(heloc))
 
-print("\nMISSING VALUES")
-print(missing_values_report(heloc))
-
 
 print("\nBANK")
-print("=" * 50)
+print("=" * 60)
 
 bank = load_demo_dataset("bank")
 
+print("\nSUMMARY")
 print(dataset_summary(bank))
+
+print("\nFIRST 10 COLUMNS")
+print(get_column_names(bank)[:10])
+
+print("\nCOLUMN TYPES")
+print(column_types(bank))

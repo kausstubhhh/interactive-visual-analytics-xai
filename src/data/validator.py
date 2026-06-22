@@ -3,7 +3,7 @@ import pandas as pd
 
 def dataset_summary(df: pd.DataFrame) -> dict:
     """
-    Return high-level dataset information.
+    High-level dataset information.
     """
 
     return {
@@ -14,7 +14,23 @@ def dataset_summary(df: pd.DataFrame) -> dict:
     }
 
 
-def missing_values_report(df: pd.DataFrame):
+def get_column_names(df: pd.DataFrame) -> list:
+    """
+    Return all column names.
+    """
+
+    return list(df.columns)
+
+
+def column_types(df: pd.DataFrame) -> pd.Series:
+    """
+    Return datatype information.
+    """
+
+    return df.dtypes
+
+
+def missing_values_report(df: pd.DataFrame) -> pd.Series:
     """
     Missing values per column.
     """
@@ -22,17 +38,9 @@ def missing_values_report(df: pd.DataFrame):
     return df.isnull().sum()
 
 
-def duplicate_count(df: pd.DataFrame):
+def duplicate_count(df: pd.DataFrame) -> int:
     """
-    Number of duplicate rows.
+    Count duplicate rows.
     """
 
     return int(df.duplicated().sum())
-
-
-def column_types(df: pd.DataFrame):
-    """
-    Column datatype information.
-    """
-
-    return df.dtypes
