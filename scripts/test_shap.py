@@ -7,7 +7,8 @@ from src.data.preprocess import prepare_dataset
 import numpy as np
 
 from src.explainability.importance import (
-    calculate_feature_importance
+    calculate_feature_importance,
+    get_top_features
 )
 
 
@@ -159,6 +160,14 @@ def main():
         )
     )
 
+
+    top_features = (
+        get_top_features(
+            importance_df,
+            top_n=10
+        )
+    )
+
     print("\nTop 10 Features\n")
 
     print(
@@ -179,12 +188,13 @@ def main():
         f"{len(feature_names)}"
     )
 
-    print("\nFirst 10 feature names:\n")
+    print("\nTop 10 Features\n")
 
-    for feature in feature_names[:10]:
-        print(feature)
-
-    print("\nValidation complete.")
+    print(
+        top_features.to_string(
+            index=False
+        )
+    )
 
 
 if __name__ == "__main__":
