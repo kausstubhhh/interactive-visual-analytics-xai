@@ -1,67 +1,23 @@
-from pathlib import Path
-
-import dash
 from dash import dcc, html
-import pandas as pd
-import plotly.express as px
 
+from components.performance_tab import (
+    create_performance_tab
+)
 
-EXPORT_FILE = (
-    Path(__file__).resolve().parent.parent
-    / "data"
-    / "exports"
-    / "evaluation_summary.csv"
+from components.feature_importance_tab import (
+    create_feature_importance_tab
+)
+
+from components.misclassification_tab import (
+    create_misclassification_tab
+)
+
+from components.decision_behaviour_tab import (
+    create_decision_behaviour_tab
 )
 
 
-def load_evaluation_data() -> pd.DataFrame:
-    """
-    Load evaluation summary CSV.
-    """
-
-    if not EXPORT_FILE.exists():
-        raise FileNotFoundError(
-            f"Evaluation file not found: {EXPORT_FILE}"
-        )
-
-    return pd.read_csv(EXPORT_FILE)
-
-
-def create_metric_figure(
-    df: pd.DataFrame,
-    metric: str,
-    title: str
-):
-    """
-    Create grouped comparison chart.
-    """
-
-    fig = px.bar(
-        df,
-        x="dataset",
-        y=metric,
-        color="model",
-        barmode="group",
-        text_auto=".3f",
-        title=title
-    )
-
-    fig.update_layout(
-        height=450,
-        margin=dict(
-            l=40,
-            r=40,
-            t=60,
-            b=40
-        )
-    )
-
-    return fig
-
-
 def create_layout():
-
-    df = load_evaluation_data()
 
     return html.Div(
         [
@@ -69,48 +25,43 @@ def create_layout():
                 "Interactive Visual Analytics Dashboard"
             ),
 
-            html.H2(
-                "Iteration 1: Performance Comparison"
-            ),
+            dcc.Tabs(
+                id="main-tabs",
+                value="performance",
+                children=[
 
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "accuracy",
-                    "Accuracy Comparison"
-                )
-            ),
+                    dcc.Tab(
+                        label="Performance Comparison",
+                        value="performance",
+                        children=[
+                            create_performance_tab()
+                        ]
+                    ),
 
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "precision",
-                    "Precision Comparison"
-                )
-            ),
+                    dcc.Tab(
+                        label="Feature Importance",
+                        value="feature_importance",
+                        children=[
+                            create_feature_importance_tab()
+                        ]
+                    ),
 
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "recall",
-                    "Recall Comparison"
-                )
-            ),
+                    dcc.Tab(
+                        label="Misclassification",
+                        value="misclassification",
+                        children=[
+                            create_misclassification_tab()
+                        ]
+                    ),
 
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "f1_score",
-                    "F1 Score Comparison"
-                )
-            ),
-
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "roc_auc",
-                    "ROC-AUC Comparison"
-                )
+                    dcc.Tab(
+                        label="Decision Behaviour",
+                        value="decision_behaviour",
+                        children=[
+                            create_decision_behaviour_tab()
+                        ]
+                    )
+                ]
             )
         ],
         style={
