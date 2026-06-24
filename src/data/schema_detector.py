@@ -13,7 +13,7 @@ def detect_schema(
         raise ValueError(
             f"Target column '{target_column}' not found."
         )
-
+ 
     feature_df = df.drop(columns=[target_column])
 
     categorical_columns = list(

@@ -16,11 +16,18 @@ from components.decision_behaviour_tab import (
     create_decision_behaviour_tab
 )
 
+from components.dataset_management_tab import (
+    create_dataset_management_tab
+)
 
 def create_layout():
 
     return html.Div(
         [
+            dcc.Store(
+                id="uploaded-dataset-store"
+            ),
+            
             html.H1(
                 "Interactive Visual Analytics Dashboard"
             ),
@@ -29,6 +36,13 @@ def create_layout():
                 id="main-tabs",
                 value="performance",
                 children=[
+                    
+                    dcc.Tab(
+                        label="Dataset Management",
+                        children=[
+                            create_dataset_management_tab()
+                        ]
+                    ),
 
                     dcc.Tab(
                         label="Performance Comparison",
@@ -60,7 +74,7 @@ def create_layout():
                         children=[
                             create_decision_behaviour_tab()
                         ]
-                    )
+                    )                 
                 ]
             )
         ],
