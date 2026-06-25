@@ -16,9 +16,15 @@ from src.evaluation.misclassification import (
 )
 
 from src.evaluation.exporter import (
-    export_evaluation_summary
+    export_evaluation_summary,
+    export_error_summary
 )
 
+from src.evaluation.exporter import (
+    export_evaluation_summary,
+    export_error_summary,
+    export_confusion_matrix
+)
 
 EXPORT_DIR = (
     Path("data")
@@ -104,6 +110,18 @@ def evaluate_all_models(
             )
         )
 
+        confusion_file = (
+            EXPORT_DIR
+            / "confusion"
+            / f"{dataset_name}_{model_name}_confusion.csv"
+        )
+
+        export_confusion_matrix(
+            confusion_matrix=evaluation[
+                "confusion_matrix"
+            ],
+            output_path=confusion_file
+        )
         errors = (
             generate_error_analysis(
                 y_true=y_true,
@@ -134,6 +152,17 @@ def evaluate_all_models(
         error_results[
             model_name
         ] = errors
+
+        error_file = (
+            EXPORT_DIR
+            / "errors"
+            / f"{dataset_name}_{model_name}_errors.csv"
+        )
+
+        export_error_summary(
+            error_summary=errors,
+            output_path=error_file
+        )
 
     export_results(
         evaluation_rows

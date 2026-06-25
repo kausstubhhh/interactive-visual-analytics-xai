@@ -13,26 +13,6 @@ def create_decision_behaviour_tab():
 
             html.Br(),
 
-            html.Label("Dataset"),
-
-            dcc.Dropdown(
-                id="decision-dataset-dropdown",
-                options=[
-                    {
-                        "label": "HELOC",
-                        "value": "heloc"
-                    },
-                    {
-                        "label": "BANK",
-                        "value": "bank"
-                    }
-                ],
-                value="heloc",
-                clearable=False
-            ),
-
-            html.Br(),
-
             html.Label("Model"),
 
             dcc.Dropdown(
@@ -82,6 +62,10 @@ def create_decision_behaviour_tab():
                 style_cell={
                     "textAlign": "left",
                     "padding": "10px"
+                },
+                style_data={
+                    "whiteSpace": "normal",
+                    "height": "auto"
                 },
                 style_header={
                     "fontWeight": "bold"

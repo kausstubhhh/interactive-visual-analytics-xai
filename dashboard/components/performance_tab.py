@@ -2,7 +2,10 @@ from dash import dcc, html
 import pandas as pd
 import plotly.express as px
 from pathlib import Path
+import plotly.io as pio
+import plotly.graph_objects as go
 
+pio.templates.default = "plotly"
 
 EXPORT_FILE = (
     Path(__file__).resolve().parent.parent.parent
@@ -11,6 +14,7 @@ EXPORT_FILE = (
     / "evaluation_summary.csv"
 )
 
+print("USING PERFORMANCE_TAB")
 
 def load_evaluation_data() -> pd.DataFrame:
 
@@ -23,22 +27,27 @@ def load_evaluation_data() -> pd.DataFrame:
 
 
 def create_metric_figure(
-    df: pd.DataFrame,
-    metric: str,
-    title: str
+    df,
+    metric,
+    title
 ):
+    print("Current template:", pio.templates.default)
+    print("=" * 60)
+    print(title)
+    print(df)
+    print(df.dtypes)
+    print(type(df))
+    print("=" * 60)
 
-    fig = px.bar(
-        df,
-        x="dataset",
-        y=metric,
-        color="model",
-        barmode="group",
-        text_auto=".3f",
-        title=title
+    fig = go.Figure()
+
+    fig.add_bar(
+        x=df["model"],
+        y=df[metric]
     )
 
     fig.update_layout(
+        title=title,
         height=450
     )
 
@@ -55,44 +64,32 @@ def create_performance_tab():
                 "Task 1: Performance Comparison"
             ),
 
-            dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "accuracy",
-                    "Accuracy Comparison"
-                )
+            html.H3(
+                "Question"
+            ),
+
+            html.P(
+                "Which model performs best on the uploaded dataset?"
             ),
 
             dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "precision",
-                    "Precision Comparison"
-                )
+                id="accuracy-chart"
             ),
 
             dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "recall",
-                    "Recall Comparison"
-                )
+                id="precision-chart"
             ),
 
             dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "f1_score",
-                    "F1 Score Comparison"
-                )
+                id="recall-chart"
             ),
 
             dcc.Graph(
-                figure=create_metric_figure(
-                    df,
-                    "roc_auc",
-                    "ROC-AUC Comparison"
-                )
+                id="f1-chart"
+            ),
+
+            dcc.Graph(
+                id="roc-chart"
             )
         ]
     )

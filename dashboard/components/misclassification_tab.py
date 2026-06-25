@@ -10,25 +10,15 @@ def create_misclassification_tab():
                 "Task 3: Misclassification Analysis"
             ),
 
-            html.Br(),
-
-            html.Label("Dataset"),
-
-            dcc.Dropdown(
-                id="error-dataset-dropdown",
-                options=[
-                    {
-                        "label": "HELOC",
-                        "value": "heloc"
-                    },
-                    {
-                        "label": "BANK",
-                        "value": "bank"
-                    }
-                ],
-                value="heloc",
-                clearable=False
+            html.H4(
+                "Question"
             ),
+
+            html.P(
+                "Where does the selected model make incorrect predictions?"
+            ),
+
+            html.Br(),
 
             html.Br(),
 
@@ -52,63 +42,122 @@ def create_misclassification_tab():
 
             html.Br(),
 
+            html.Br(),
+
             html.Div(
                 [
 
+                    # False Positives
                     html.Div(
                         [
                             html.H4("False Positives"),
+                            html.Small(
+                                "Predicted Positive\nActually Negative"
+                            ),
+                            html.Br(),
+                            html.Br(),
                             html.H3(id="false-positive-card")
                         ],
                         style={
-                            "width": "24%",
-                            "display": "inline-block",
-                            "textAlign": "center"
+                            "flex": "1",
+                            "padding": "20px",
+                            "border": "1px solid #ddd",
+                            "borderRadius": "8px",
+                            "textAlign": "center",
+                            "backgroundColor": "#FCECEC"
                         }
                     ),
 
+                    # False Negatives
                     html.Div(
                         [
                             html.H4("False Negatives"),
+                            html.Small(
+                                "Predicted Negative\nActually Positive"
+                            ),
+                            html.Br(),
+                            html.Br(),
                             html.H3(id="false-negative-card")
                         ],
                         style={
-                            "width": "24%",
-                            "display": "inline-block",
-                            "textAlign": "center"
+                            "flex": "1",
+                            "padding": "20px",
+                            "border": "1px solid #ddd",
+                            "borderRadius": "8px",
+                            "textAlign": "center",
+                            "backgroundColor": "#FCECEC"
                         }
                     ),
 
+                    # Total Errors
                     html.Div(
                         [
                             html.H4("Total Errors"),
+                            html.Small(
+                                "False Positives + False Negatives"
+                            ),
+                            html.Br(),
+                            html.Br(),
                             html.H3(id="total-errors-card")
                         ],
                         style={
-                            "width": "24%",
-                            "display": "inline-block",
-                            "textAlign": "center"
+                            "flex": "1",
+                            "padding": "20px",
+                            "border": "1px solid #ddd",
+                            "borderRadius": "8px",
+                            "textAlign": "center",
+                            "backgroundColor": "#FFF8DC"
                         }
                     ),
 
+                    # Error Rate
                     html.Div(
                         [
                             html.H4("Error Rate"),
+                            html.Small(
+                                "Errors / Total Predictions"
+                            ),
+                            html.Br(),
+                            html.Br(),
                             html.H3(id="error-rate-card")
                         ],
                         style={
-                            "width": "24%",
-                            "display": "inline-block",
-                            "textAlign": "center"
+                            "flex": "1",
+                            "padding": "20px",
+                            "border": "1px solid #ddd",
+                            "borderRadius": "8px",
+                            "textAlign": "center",
+                            "backgroundColor": "#EEF7FF"
                         }
                     )
-                ]
+
+                ],
+                style={
+                    "display": "flex",
+                    "gap": "15px",
+                    "marginTop": "20px",
+                    "marginBottom": "20px"
+                }
             ),
 
             html.Br(),
 
+            html.H3(
+                "Confusion Matrix"
+            ),
+
+            dcc.Graph(
+                id="confusion-matrix-chart"
+            ),
+
+            html.Br(),
+
+            html.H3(
+                "Error Breakdown"
+            ),
+
             dcc.Graph(
                 id="error-breakdown-chart"
-            )
+            ),
         ]
     )

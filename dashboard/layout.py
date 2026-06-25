@@ -39,6 +39,7 @@ def create_layout():
                     
                     dcc.Tab(
                         label="Dataset Management",
+                        value="dataset_management",
                         children=[
                             create_dataset_management_tab()
                         ]

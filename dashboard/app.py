@@ -1,10 +1,23 @@
 from dash import Dash
+import plotly.io as pio
+
+pio.templates.default = "plotly"
 
 from layout import create_layout
 from callbacks import register_callbacks
 
 
-app = Dash(__name__)
+app = Dash(
+    __name__,
+    suppress_callback_exceptions=True
+)
+
+import plotly.io as pio
+
+print("=" * 80)
+print("Template before layout:", pio.templates.default)
+print("Template object:", type(pio.templates[pio.templates.default]))
+print("=" * 80)
 
 app.title = (
     "Interactive Visual Analytics Dashboard"

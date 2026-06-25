@@ -2,6 +2,7 @@ from pathlib import Path
 import sys
 import io
 import base64
+import plotly.graph_objects as go
 
 import pandas as pd
 import plotly.express as px
@@ -32,6 +33,10 @@ from src.services.dataset_service import (
 
 from src.services.analysis_pipeline import (
     run_analysis_pipeline
+)
+
+from components.performance_tab import (
+    create_metric_figure
 )
 # ============================================================
 # PATHS
@@ -92,7 +97,9 @@ def create_shap_figure(
     """
     Create horizontal SHAP importance chart.
     """
-
+    print(df)
+    print(df.empty)
+    print(df.columns.tolist())
     fig = px.bar(
         df,
         x="importance",
@@ -141,6 +148,36 @@ def load_error_file(
 
     return pd.read_csv(file_path)
 
+def load_confusion_file(
+    dataset,
+    model
+):
+    """
+    Load confusion matrix CSV.
+    """
+
+    filename = (
+        f"{dataset}_{model}_confusion.csv"
+    )
+
+    file_path = (
+        Path(__file__).resolve().parent.parent
+        / "data"
+        / "exports"
+        / "confusion"
+        / filename
+    )
+
+    if not file_path.exists():
+
+        raise FileNotFoundError(
+            f"Confusion file not found: {file_path}"
+        )
+
+    return pd.read_csv(
+        file_path,
+        index_col=0
+    )
 
 def create_error_figure(
     df: pd.DataFrame
@@ -154,10 +191,21 @@ def create_error_figure(
             [
                 "false_positives",
                 "false_negatives",
-                "total_errors"
             ]
         )
     ]
+    chart_df = chart_df.copy()
+
+    chart_df["metric"] = chart_df["metric"].replace(
+    {
+        "false_positives": "False Positives",
+        "false_negatives": "False Negatives"
+    }
+)
+
+    print(df)
+    print(df.dtypes)
+    print(type(df))
 
     fig = px.bar(
         chart_df,
@@ -168,11 +216,70 @@ def create_error_figure(
     )
 
     fig.update_layout(
+        title="Error Breakdown",
+        xaxis_title="Error Type",
+        yaxis_title="Count",
+        xaxis_tickangle=0,
         height=500
     )
 
     return fig
 
+def create_confusion_figure(df):
+    """
+    Create confusion matrix heatmap.
+    """
+
+    # Rearrange matrix:
+    # [[TP, FN],
+    #  [FP, TN]]
+
+    matrix = [
+        [df.iloc[1, 1], df.iloc[1, 0]],
+        [df.iloc[0, 1], df.iloc[0, 0]]
+    ]
+
+    labels = [
+        ["TP", "FN"],
+        ["FP", "TN"]
+    ]
+
+    annotations = [
+        [
+            f"{labels[i][j]}<br>{matrix[i][j]}"
+            for j in range(2)
+        ]
+        for i in range(2)
+    ]
+
+    fig = px.imshow(
+        matrix,
+        x=[
+            "Positive",
+            "Negative"
+        ],
+        y=[
+            "Positive",
+            "Negative"
+        ],
+        color_continuous_scale="Blues",
+        text_auto=False,
+        aspect="equal"
+    )
+
+    fig.update_traces(
+        text=annotations,
+        texttemplate="%{text}"
+    )
+
+    fig.update_layout(
+        title="Confusion Matrix",
+        xaxis_title="Predicted Class",
+        yaxis_title="Actual Class",
+        height=550
+    )
+
+    return fig
 
 # ============================================================
 # CALLBACKS
@@ -201,6 +308,33 @@ def load_local_explanation_file(
 
     return pd.read_csv(file_path)
 
+def create_empty_figure(message):
+    """
+    Create an empty Plotly figure with a centered message.
+    """
+
+    fig = go.Figure()
+
+    fig.update_layout(
+        xaxis={"visible": False},
+        yaxis={"visible": False},
+        annotations=[
+            {
+                "text": message,
+                "xref": "paper",
+                "yref": "paper",
+                "showarrow": False,
+                "font": {
+                    "size": 18
+                }
+            }
+        ],
+        plot_bgcolor="white",
+        paper_bgcolor="white",
+        height=450
+    )
+
+    return fig
 
 def create_decision_figure(
     df: pd.DataFrame
@@ -209,20 +343,25 @@ def create_decision_figure(
     Create local explanation chart.
     """
 
+    print(df)
+    print(df.empty)
+    print(df.columns.tolist())
+    print(df.dtypes)
+    print(type(df))
+
     fig = px.bar(
         df,
-        x="contribution",
+        x="SHAP Value",
         y="feature",
         orientation="h",
-        color="contribution",
+        color="SHAP Value",
+        text="SHAP Value",
         title="Local Feature Contributions"
     )
 
     fig.update_layout(
-        height=700,
-        yaxis=dict(
-            categoryorder="total ascending"
-        )
+        title="Local Feature Contributions",
+        height=500
     )
 
     return fig
@@ -248,23 +387,35 @@ def register_callbacks(app):
             "columns"
         ),
         Input(
-            "dataset-dropdown",
-            "value"
-        ),
-        Input(
             "model-dropdown",
             "value"
         ),
         Input(
             "topn-dropdown",
             "value"
+        ),
+        Input(
+            "analysis-status",
+            "children"
         )
     )
     def update_feature_importance(
-        dataset,
         model,
-        top_n
+        top_n,
+        analysis_status
     ):
+        if analysis_status != (
+            "Analysis completed successfully."
+        ):
+            return (
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                [],
+                []
+            )
+        
+        dataset ="uploaded"
 
         df = load_shap_file(
             dataset,
@@ -301,6 +452,12 @@ def register_callbacks(app):
             )
         )
 
+        print("=" * 60)
+        print(df.head())
+        print(df.columns)
+        print(df.dtypes)
+        print("=" * 60)
+        
         figure = create_shap_figure(
             df
         )
@@ -348,23 +505,46 @@ def register_callbacks(app):
             "children"
         ),
         Output(
+            "confusion-matrix-chart",
+            "figure"
+        ),
+        Output(
             "error-breakdown-chart",
             "figure"
         ),
         Input(
-            "error-dataset-dropdown",
+            "error-model-dropdown",
             "value"
         ),
         Input(
-            "error-model-dropdown",
-            "value"
+            "analysis-status",
+            "children"
         )
     )
     def update_error_analysis(
-        dataset,
-        model
+        model,
+        analysis_status
     ):
+        if analysis_status != (
+            "Analysis completed successfully."
+        ):
+            return (
+                "",
+                "",
+                "",
+                "",
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                )
+            )
+            
+        
+        dataset = "uploaded"
 
+        # Load error summary
         df = load_error_file(
             dataset,
             model
@@ -377,8 +557,19 @@ def register_callbacks(app):
             )
         )
 
+        # Create error chart
         figure = create_error_figure(
             df
+        )
+
+        # Load confusion matrix
+        confusion_df = load_confusion_file(
+            dataset,
+            model
+        )
+
+        confusion_figure = create_confusion_figure(
+            confusion_df
         )
 
         return (
@@ -386,6 +577,7 @@ def register_callbacks(app):
             f"{int(metrics['false_negatives'])}",
             f"{int(metrics['total_errors'])}",
             f"{metrics['error_rate']:.3f}",
+            confusion_figure,
             figure
         )
     
@@ -408,8 +600,8 @@ def register_callbacks(app):
             "columns"
         ),
         Input(
-            "decision-dataset-dropdown",
-            "value"
+            "analysis-status",
+            "children"
         ),
         Input(
             "decision-model-dropdown",
@@ -422,10 +614,22 @@ def register_callbacks(app):
     )
     
     def update_decision_behaviour(
-        dataset,
+        analysis_status,
         model,
-        top_n
+        top_n,
     ):
+        if analysis_status != (
+            "Analysis completed successfully."
+        ):
+            return (
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                [],
+                []
+            )
+        
+        dataset ="uploaded"
 
         df = load_local_explanation_file(
             dataset,
@@ -454,6 +658,10 @@ def register_callbacks(app):
                 regex=False
             )
         )
+        df["contribution"] = (
+            df["contribution"]
+            .round(3)
+        )
         
         df.insert(
             0,
@@ -462,6 +670,18 @@ def register_callbacks(app):
                 1,
                 len(df) + 1
             )
+        )
+
+        df = df.drop(
+            columns=[
+                "abs_contribution"
+            ]
+        )
+
+        df = df.rename(
+            columns={
+                "contribution": "SHAP Value"
+            }
         )
 
         figure = create_decision_figure(
@@ -492,6 +712,11 @@ def register_callbacks(app):
         Output(
             "upload-status",
             "children"
+        ),
+        Output(
+            "analysis-status",
+            "children",
+            allow_duplicate=True
         ),
         Output(
             "dataset-summary",
@@ -528,6 +753,7 @@ def register_callbacks(app):
             return (
                 "No dataset uploaded.",
                 "",
+                "",
                 [],
                 [],
                 None
@@ -562,6 +788,7 @@ def register_callbacks(app):
 
             return (
                 "Unsupported file type.",
+                "",
                 "",
                 [],
                 [],
@@ -601,6 +828,7 @@ def register_callbacks(app):
 
         return (
             f"Uploaded: {filename}",
+            "",
             summary,
             data,
             columns,
@@ -837,3 +1065,114 @@ def register_callbacks(app):
             return (
                 f"Analysis failed: {str(e)}"
             )
+        
+    @app.callback(
+        Output(
+            "accuracy-chart",
+            "figure"
+        ),
+        Output(
+            "precision-chart",
+            "figure"
+        ),
+        Output(
+            "recall-chart",
+            "figure"
+        ),
+        Output(
+            "f1-chart",
+            "figure"
+        ),
+        Output(
+            "roc-chart",
+            "figure"
+        ),
+        Input(
+            "analysis-status",
+            "children"
+        )
+    )
+    
+    def update_performance_tab(
+        analysis_status
+    ):
+
+        if analysis_status != (
+            "Analysis completed successfully."
+        ):
+            return (
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                ),
+                create_empty_figure(
+                    "Upload a dataset and run analysis."
+                )
+            )
+
+        file = Path(
+            "data/exports/evaluation_summary.csv"
+        )
+
+        if not file.exists():
+            return (
+                create_empty_figure(
+                    "No evaluation results."
+                ),
+                create_empty_figure(
+                    "No evaluation results."
+                ),
+                create_empty_figure(
+                    "No evaluation results."
+                ),
+                create_empty_figure(
+                    "No evaluation results."
+                ),
+                create_empty_figure(
+                    "No evaluation results."
+                )
+            )
+        
+
+        df = pd.read_csv(file)
+
+        return (
+
+            create_metric_figure(
+                df,
+                "accuracy",
+                "Accuracy Comparison"
+            ),
+
+            create_metric_figure(
+                df,
+                "precision",
+                "Precision Comparison"
+            ),
+
+            create_metric_figure(
+                df,
+                "recall",
+                "Recall Comparison"
+            ),
+
+            create_metric_figure(
+                df,
+                "f1_score",
+                "F1 Score Comparison"
+            ),
+
+            create_metric_figure(
+                df,
+                "roc_auc",
+                "ROC-AUC Comparison"
+            )
+        )

@@ -13,26 +13,6 @@ def create_feature_importance_tab():
 
             html.Br(),
 
-            html.Label("Dataset"),
-
-            dcc.Dropdown(
-                id="dataset-dropdown",
-                options=[
-                    {
-                        "label": "HELOC",
-                        "value": "heloc"
-                    },
-                    {
-                        "label": "BANK",
-                        "value": "bank"
-                    }
-                ],
-                value="heloc",
-                clearable=False
-            ),
-
-            html.Br(),
-
             html.Label("Model"),
 
             dcc.Dropdown(
