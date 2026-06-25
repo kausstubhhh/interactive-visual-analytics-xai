@@ -797,19 +797,60 @@ def register_callbacks(app):
 
         summary = html.Div(
             [
-                html.P(
-                    f"Rows: {len(df)}"
+
+                html.Div(
+                    [
+
+                        html.Div(
+                            "Rows",
+                            className="metric-title"
+                        ),
+
+                        html.Div(
+                            f"{len(df):,}",
+                            className="metric-value"
+                        )
+
+                    ],
+                    className="metric-card"
                 ),
 
-                html.P(
-                    f"Columns: {len(df.columns)}"
+                html.Div(
+                    [
+
+                        html.Div(
+                            "Columns",
+                            className="metric-title"
+                        ),
+
+                        html.Div(
+                            str(len(df.columns)),
+                            className="metric-value"
+                        )
+
+                    ],
+                    className="metric-card"
                 ),
 
-                html.P(
-                    f"Missing Values: "
-                    f"{int(df.isna().sum().sum())}"
+                html.Div(
+                    [
+
+                        html.Div(
+                            "Missing Values",
+                            className="metric-title"
+                        ),
+
+                        html.Div(
+                            str(int(df.isna().sum().sum())),
+                            className="metric-value"
+                        )
+
+                    ],
+                    className="metric-card"
                 )
-            ]
+
+            ],
+            className="metric-container"
         )
 
         preview = df.head(10)

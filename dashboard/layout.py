@@ -79,7 +79,5 @@ def create_layout():
                 ]
             )
         ],
-        style={
-            "padding": "20px"
-        }
+        className="dashboard-container"
     )
