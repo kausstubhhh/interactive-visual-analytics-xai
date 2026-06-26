@@ -2,6 +2,8 @@ from dash import dash_table
 from dash import dcc
 from dash import html
 
+from ui_components import create_card
+
 
 def create_dataset_management_tab():
 
@@ -21,152 +23,113 @@ def create_dataset_management_tab():
                 )
             ),
 
-            # -----------------------------
-            # Upload Card
-            # -----------------------------
+            # -----------------------------------
+            # Upload Dataset
+            # -----------------------------------
 
-            html.Div(
+            create_card(
 
-                [
+                "Upload Dataset",
 
-                    html.H3(
-                        "Upload Dataset"
+                dcc.Upload(
+                    id="dataset-upload",
+                    children=html.Div(
+                        [
+                            "Drag and Drop or ",
+                            html.A("Select CSV File")
+                        ]
                     ),
+                    className="upload-box",
+                    multiple=False
+                ),
 
-                    dcc.Upload(
-                        id="dataset-upload",
-                        children=html.Div(
-                            [
-                                "Drag and Drop or ",
-                                html.A("Select CSV File")
-                            ]
-                        ),
-                        className="upload-box",
-                        multiple=False
-                    ),
-
-                    html.Div(
-                        id="upload-status",
-                        children="No dataset uploaded."
-                    )
-
-                ],
-
-                className="dashboard-card"
+                html.Div(
+                    id="upload-status",
+                    children="No dataset uploaded."
+                )
 
             ),
 
-            # -----------------------------
-            # Summary Card
-            # -----------------------------
+            # -----------------------------------
+            # Dataset Summary
+            # -----------------------------------
 
-            html.Div(
+            create_card(
 
-                [
+                "Dataset Summary",
 
-                    html.H3(
-                        "Dataset Summary"
-                    ),
-
-                    html.Div(
-                        id="dataset-summary"
-                    )
-
-                ],
-
-                className="dashboard-card"
+                html.Div(
+                    id="dataset-summary"
+                )
 
             ),
 
-            # -----------------------------
-            # Target Selection Card
-            # -----------------------------
+            # -----------------------------------
+            # Target Selection
+            # -----------------------------------
 
-            html.Div(
+            create_card(
 
-                [
+                "Target Selection",
 
-                    html.H3(
-                        "Target Selection"
-                    ),
+                dcc.Dropdown(
+                    id="target-column-dropdown",
+                    options=[],
+                    placeholder="Upload a dataset first",
+                    clearable=False
+                ),
 
-                    dcc.Dropdown(
-                        id="target-column-dropdown",
-                        options=[],
-                        placeholder="Upload a dataset first",
-                        clearable=False
-                    ),
+                html.Br(),
 
-                    html.Br(),
+                html.Button(
+                    "Run Analysis",
+                    id="run-analysis-button",
+                    n_clicks=0
+                ),
 
-                    html.Button(
-                        "Run Analysis",
-                        id="run-analysis-button",
-                        n_clicks=0
-                    ),
+                html.Br(),
 
-                    html.Br(),
-                    html.Br(),
+                html.Br(),
 
-                    html.Div(
-                        id="analysis-status"
-                    )
-
-                ],
-
-                className="dashboard-card"
+                html.Div(
+                    id="analysis-status"
+                )
 
             ),
 
-            # -----------------------------
-            # Schema Card
-            # -----------------------------
+            # -----------------------------------
+            # Schema Detection
+            # -----------------------------------
 
-            html.Div(
+            create_card(
 
-                [
+                "Detected Schema",
 
-                    html.H3(
-                        "Detected Schema"
-                    ),
-
-                    html.Div(
-                        id="schema-summary"
-                    )
-
-                ],
-
-                className="dashboard-card"
+                html.Div(
+                    id="schema-summary"
+                )
 
             ),
 
-            # -----------------------------
-            # Preview Card
-            # -----------------------------
+            # -----------------------------------
+            # Dataset Preview
+            # -----------------------------------
 
-            html.Div(
+            create_card(
 
-                [
+                "Dataset Preview",
 
-                    html.H3(
-                        "Dataset Preview"
-                    ),
-
-                    dash_table.DataTable(
-                        id="dataset-preview-table",
-                        page_size=10,
-                        style_table={
-                            "overflowX": "auto"
-                        },
-                        style_cell={
-                            "textAlign": "left",
-                            "padding": "8px"
-                        }
-                    )
-
-                ],
-
-                className="dashboard-card"
+                dash_table.DataTable(
+                    id="dataset-preview-table",
+                    page_size=10,
+                    style_table={
+                        "overflowX": "auto"
+                    },
+                    style_cell={
+                        "textAlign": "left",
+                        "padding": "8px"
+                    }
+                )
 
             )
 

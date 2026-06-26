@@ -1,5 +1,5 @@
 from dash import dcc, html
-
+from ui_components import create_workflow_banner
 from components.performance_tab import (
     create_performance_tab
 )
@@ -27,14 +27,45 @@ def create_layout():
             dcc.Store(
                 id="uploaded-dataset-store"
             ),
-            
-            html.H1(
-                "Interactive Visual Analytics Dashboard"
+
+            dcc.Store(
+                id="application-state",
+                data={
+                    "dataset_uploaded": False,
+                    "target_selected": False,
+                    "analysis_completed": False
+                }
             ),
+            
+            html.Div(
+
+                [
+
+                    html.H1(
+                        "Interactive Visual Analytics",
+                        className="page-title"
+                    ),
+
+                    html.P(
+                        (
+                            "Explore, compare and explain "
+                            "classification models using "
+                            "interactive visual analytics."
+                        ),
+                        className="page-subtitle"
+                    )
+
+                ],
+
+                className="dashboard-header"
+
+            ),
+            create_workflow_banner(),
 
             dcc.Tabs(
                 id="main-tabs",
-                value="performance",
+                value="dataset_management",
+                className="dashboard-tabs",
                 children=[
                     
                     dcc.Tab(
