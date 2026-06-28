@@ -12,13 +12,6 @@ app = Dash(
     suppress_callback_exceptions=True
 )
 
-import plotly.io as pio
-
-print("=" * 80)
-print("Template before layout:", pio.templates.default)
-print("Template object:", type(pio.templates[pio.templates.default]))
-print("=" * 80)
-
 app.title = (
     "Interactive Visual Analytics Dashboard"
 )

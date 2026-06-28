@@ -1,163 +1,112 @@
-from dash import dcc, html
+from dash import dcc, html, dash_table
 
-
+from ui_components import (
+    create_card,
+    create_analysis_card,
+    create_metric_card
+)
 def create_misclassification_tab():
 
     return html.Div(
         [
 
             html.H2(
-                "Task 3: Misclassification Analysis"
-            ),
-
-            html.H4(
-                "Question"
+                "Misclassification Analysis"
             ),
 
             html.P(
-                "Where does the selected model make incorrect predictions?"
+                (
+                    "Investigate incorrect predictions made by each "
+                    "classification model and understand where errors occur."
+                )
             ),
 
-            html.Br(),
-
-            html.Br(),
-
-            html.Label("Model"),
-
-            dcc.Dropdown(
-                id="error-model-dropdown",
-                options=[
-                    {
-                        "label": "Logistic Regression",
-                        "value": "logistic_regression"
-                    },
-                    {
-                        "label": "Random Forest",
-                        "value": "random_forest"
-                    }
-                ],
-                value="logistic_regression",
-                clearable=False
+            create_analysis_card(
+                title="Misclassification Summary",
+                component_id="misclassification-summary",
+                icon="⚠️"
             ),
-
-            html.Br(),
-
-            html.Br(),
 
             html.Div(
-                [
-
-                    # False Positives
-                    html.Div(
-                        [
-                            html.H4("False Positives"),
-                            html.Small(
-                                "Predicted Positive\nActually Negative"
-                            ),
-                            html.Br(),
-                            html.Br(),
-                            html.H3(id="false-positive-card")
-                        ],
-                        style={
-                            "flex": "1",
-                            "padding": "20px",
-                            "border": "1px solid #ddd",
-                            "borderRadius": "8px",
-                            "textAlign": "center",
-                            "backgroundColor": "#FCECEC"
-                        }
-                    ),
-
-                    # False Negatives
-                    html.Div(
-                        [
-                            html.H4("False Negatives"),
-                            html.Small(
-                                "Predicted Negative\nActually Positive"
-                            ),
-                            html.Br(),
-                            html.Br(),
-                            html.H3(id="false-negative-card")
-                        ],
-                        style={
-                            "flex": "1",
-                            "padding": "20px",
-                            "border": "1px solid #ddd",
-                            "borderRadius": "8px",
-                            "textAlign": "center",
-                            "backgroundColor": "#FCECEC"
-                        }
-                    ),
-
-                    # Total Errors
-                    html.Div(
-                        [
-                            html.H4("Total Errors"),
-                            html.Small(
-                                "False Positives + False Negatives"
-                            ),
-                            html.Br(),
-                            html.Br(),
-                            html.H3(id="total-errors-card")
-                        ],
-                        style={
-                            "flex": "1",
-                            "padding": "20px",
-                            "border": "1px solid #ddd",
-                            "borderRadius": "8px",
-                            "textAlign": "center",
-                            "backgroundColor": "#FFF8DC"
-                        }
-                    ),
-
-                    # Error Rate
-                    html.Div(
-                        [
-                            html.H4("Error Rate"),
-                            html.Small(
-                                "Errors / Total Predictions"
-                            ),
-                            html.Br(),
-                            html.Br(),
-                            html.H3(id="error-rate-card")
-                        ],
-                        style={
-                            "flex": "1",
-                            "padding": "20px",
-                            "border": "1px solid #ddd",
-                            "borderRadius": "8px",
-                            "textAlign": "center",
-                            "backgroundColor": "#EEF7FF"
-                        }
-                    )
-
-                ],
-                style={
-                    "display": "flex",
-                    "gap": "15px",
-                    "marginTop": "20px",
-                    "marginBottom": "20px"
-                }
+                id="misclassification-metric-cards"
             ),
 
             html.Br(),
 
-            html.H3(
-                "Confusion Matrix"
+            create_card(
+
+                "Analysis Controls",
+
+                html.Div(
+                    [
+                        html.Label("Model"),
+
+                        dcc.Dropdown(
+                            id="error-model-dropdown",
+                            options=[
+                                {
+                                    "label": "Logistic Regression",
+                                    "value": "logistic_regression"
+                                },
+                                {
+                                    "label": "Random Forest",
+                                    "value": "random_forest"
+                                }
+                            ],
+                            value="logistic_regression",
+                            clearable=False
+                        )
+                    ]
+                )
             ),
 
-            dcc.Graph(
-                id="confusion-matrix-chart"
+            create_card(
+                "Confusion Matrix",
+                dcc.Graph(
+                    id="confusion-matrix-chart"
+                )
             ),
 
             html.Br(),
 
-            html.H3(
-                "Error Breakdown"
-            ),
-
-            dcc.Graph(
-                id="error-breakdown-chart"
+            create_card(
+                "Error Breakdown",
+                dcc.Graph(
+                    id="error-breakdown-chart"
+                )
             ),
         ]
+    )
+
+def build_error_metric_cards(metrics):
+
+    return html.Div(
+
+        [
+
+            create_metric_card(
+                "False Positives",
+                str(int(metrics["false_positives"]))
+            ),
+
+            create_metric_card(
+                "False Negatives",
+                str(int(metrics["false_negatives"]))
+            ),
+
+            create_metric_card(
+                "Total Errors",
+                str(int(metrics["total_errors"]))
+            ),
+
+            create_metric_card(
+                "Error Rate",
+                f"{metrics['error_rate']:.1%}"
+            ),
+            
+
+        ],
+
+        className="performance-summary-row"
+
     )

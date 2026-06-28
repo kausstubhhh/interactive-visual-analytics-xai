@@ -52,7 +52,8 @@ def generate_shap_values(
     )
 
     shap_values = explainer(
-        X_explain
+        X_explain,
+        check_additivity=False
     )
 
     return shap_values

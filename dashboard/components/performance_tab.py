@@ -5,6 +5,16 @@ from pathlib import Path
 import plotly.io as pio
 import plotly.graph_objects as go
 
+from ui_components import (
+    create_analysis_card,
+    create_card,
+    create_metric_card
+)
+
+from visualisations.performance_plots import (
+    performance_bar_chart
+)
+
 pio.templates.default = "plotly"
 
 EXPORT_FILE = (
@@ -26,70 +36,118 @@ def load_evaluation_data() -> pd.DataFrame:
     return pd.read_csv(EXPORT_FILE)
 
 
-def create_metric_figure(
-    df,
-    metric,
-    title
-):
-    print("Current template:", pio.templates.default)
-    print("=" * 60)
-    print(title)
-    print(df)
-    print(df.dtypes)
-    print(type(df))
-    print("=" * 60)
+def build_metric_cards(best_model):
 
-    fig = go.Figure()
+    return html.Div(
 
-    fig.add_bar(
-        x=df["model"],
-        y=df[metric]
+        [
+
+            create_metric_card(
+                "Best Model",
+                best_model["model"]
+                .replace("_", " ")
+                .title()
+
+            ),
+
+            create_metric_card(
+                "Accuracy",
+                f"{best_model['accuracy']:.3f}"
+            ),
+            
+            create_metric_card(
+                "F1 Score",
+                f"{best_model['f1_score']:.3f}"
+            ),
+
+            create_metric_card(
+                "ROC-AUC",
+                f"{best_model['roc_auc']:.3f}"
+            )
+        ],
+        className="performance-summary-row"
     )
-
-    fig.update_layout(
-        title=title,
-        height=450
-    )
-
-    return fig
-
 
 def create_performance_tab():
-
-    df = load_evaluation_data()
 
     return html.Div(
         [
             html.H2(
-                "Task 1: Performance Comparison"
+                "Performance Comparison"
             ),
-
-            html.H3(
-                "Question"
-            ),
-
+            
             html.P(
-                "Which model performs best on the uploaded dataset?"
+                (
+                    "Compare the predictive performance of the trained "
+                    "classification models using standard evaluation metrics."
+                )
             ),
 
-            dcc.Graph(
-                id="accuracy-chart"
+            create_analysis_card(
+
+                title="Performance Summary",
+                component_id="performance-summary",
+                icon="🏆"
             ),
 
-            dcc.Graph(
-                id="precision-chart"
+            html.Div(
+                id="performance-metric-cards"
             ),
 
-            dcc.Graph(
-                id="recall-chart"
+            create_card(
+                "Performance Explorer",
+                html.Div(
+                    [
+                        html.Label(
+                            "Performance Metric"
+                        ),
+                        dcc.Dropdown(
+                            id="metric-selector",
+                            options=[
+                                {
+                                    "label": "Accuracy",
+                                    "value": "accuracy"
+                                },
+                                {
+                                    "label": "Precision",
+                                    "value": "precision"
+                                },
+                                {
+                                    "label": "Recall",
+                                    "value": "recall"
+                                },
+                                {
+                                    "label": "F1 Score",
+                                    "value": "f1_score"
+                                },
+                                {
+                                    "label": "ROC-AUC",
+                                    "value": "roc_auc"
+                                }
+                            ],
+                            value="accuracy",
+                            clearable=False
+                        )
+                    ],
+                    style={
+                        "marginBottom": "20px"
+                    }
+                ),
+                dcc.Graph(
+                    id="performance-comparison-chart"
+                )
             ),
-
-            dcc.Graph(
-                id="f1-chart"
+            create_card(
+                "Model Comparison",
+                html.Div(
+                    id="performance-comparison-table"
+                )
             ),
-
-            dcc.Graph(
-                id="roc-chart"
-            )
+            create_card(
+                "ROC Curve",
+                dcc.Graph(
+                    id="roc-curve-chart"
+                )
+            ),
         ]
     )

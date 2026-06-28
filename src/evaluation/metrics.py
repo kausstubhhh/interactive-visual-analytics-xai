@@ -1,6 +1,4 @@
-"""
-Evaluation metrics for binary classification models.
-"""
+import numpy as np
 
 from sklearn.metrics import (
     accuracy_score,
@@ -17,34 +15,18 @@ def calculate_metrics(
     y_proba
 ):
     """
-    Calculate standard binary classification metrics.
-
-    Parameters
-    ----------
-    y_true : array-like
-        Ground truth labels.
-
-    y_pred : array-like
-        Predicted labels.
-
-    y_proba : array-like
-        Positive-class probabilities.
-
-    Returns
-    -------
-    dict
-        Dictionary containing:
-
-        {
-            "accuracy": float,
-            "precision": float,
-            "recall": float,
-            "f1_score": float,
-            "roc_auc": float
-        }
+    Calculate evaluation metrics for
+    any binary classification dataset.
     """
 
+    labels = sorted(
+        np.unique(y_true)
+    )
+
+    positive_label = labels[-1]
+
     metrics = {
+
         "accuracy": accuracy_score(
             y_true,
             y_pred
@@ -53,18 +35,21 @@ def calculate_metrics(
         "precision": precision_score(
             y_true,
             y_pred,
+            pos_label=positive_label,
             zero_division=0
         ),
 
         "recall": recall_score(
             y_true,
             y_pred,
+            pos_label=positive_label,
             zero_division=0
         ),
 
         "f1_score": f1_score(
             y_true,
             y_pred,
+            pos_label=positive_label,
             zero_division=0
         ),
 
@@ -72,6 +57,7 @@ def calculate_metrics(
             y_true,
             y_proba
         )
+
     }
 
     return metrics

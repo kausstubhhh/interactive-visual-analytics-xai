@@ -63,7 +63,8 @@ def create_dataset_management_tab():
                 )
 
             ),
-
+            
+            
             # -----------------------------------
             # Target Selection
             # -----------------------------------
@@ -84,7 +85,9 @@ def create_dataset_management_tab():
                 html.Button(
                     "Run Analysis",
                     id="run-analysis-button",
-                    n_clicks=0
+                    n_clicks=0,
+                    disabled=True,
+                    className="primary-button"
                 ),
 
                 html.Br(),
@@ -97,20 +100,33 @@ def create_dataset_management_tab():
 
             ),
 
+            
             # -----------------------------------
             # Schema Detection
             # -----------------------------------
 
             create_card(
 
-                "Detected Schema",
-
-                html.Div(
-                    id="schema-summary"
+                "Dataset Inspector",
+                dash_table.DataTable(
+                    id="dataset-inspector-table",
+                    page_size=10,
+                    sort_action="native",
+                    filter_action="native",
+                    style_table={
+                        "overflowX": "auto"
+                    },
+                    style_cell={
+                        "textAlign": "left",
+                        "padding": "10px",
+                        "fontFamily": "Inter"
+                    },
+                    style_header={
+                        "fontWeight": "bold",
+                        "backgroundColor": "#F6F8FC"
+                    }
                 )
-
             ),
-
             # -----------------------------------
             # Dataset Preview
             # -----------------------------------

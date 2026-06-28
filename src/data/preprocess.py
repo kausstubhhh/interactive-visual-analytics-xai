@@ -6,34 +6,24 @@ from sklearn.model_selection import train_test_split
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.preprocessing import StandardScaler
-
+from sklearn.preprocessing import LabelEncoder
 
 def encode_target(
     df: pd.DataFrame,
     target_column: str
 ) -> pd.DataFrame:
     """
-    Encode known target variables.
+    Encode any binary target to 0/1.
     """
 
     df = df.copy()
 
-    if target_column == "RiskPerformance":
-        df[target_column] = (
-            df[target_column]
-            .map({
-                "Good": 0,
-                "Bad": 1
-            })
-        )
+    if df[target_column].nunique() == 2:
 
-    elif target_column == "y":
-        df[target_column] = (
+        encoder = LabelEncoder()
+
+        df[target_column] = encoder.fit_transform(
             df[target_column]
-            .map({
-                "no": 0,
-                "yes": 1
-            })
         )
 
     return df
@@ -118,6 +108,13 @@ def prepare_dataset(
         df,
         target_column
     )
+
+    # Validate Target
+
+    if df[target_column].nunique() != 2:
+        raise ValueError(
+            "This dashboard currently supports binary classification datasets only."
+        )
 
     if target_column == "RiskPerformance":
         df = clean_heloc_special_values(df)

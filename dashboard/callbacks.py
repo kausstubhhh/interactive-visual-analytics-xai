@@ -14,6 +14,37 @@ from dash import (
     State
 )
 
+from narrative import generate_performance_summary
+
+from visualisations.feature_importance import (
+    feature_importance_chart
+)
+
+from visualisations.misclassification import (
+    error_breakdown_figure
+)
+
+from visualisations.decision_behaviour import (
+    local_shap_chart
+)
+
+from components.performance_tab import (
+    performance_bar_chart,
+    build_metric_cards
+)
+from components.feature_importance_tab import (
+    build_feature_metric_cards,
+    generate_feature_summary
+)
+from components.misclassification_tab import (
+    build_error_metric_cards
+)
+from components.decision_behaviour_tab import (
+    build_decision_metric_cards,
+    generate_decision_summary
+)
+
+
 # Project Root
 
 PROJECT_ROOT = (
@@ -26,18 +57,19 @@ if str(PROJECT_ROOT) not in sys.path:
     )
 
 # Services
-
-from src.services.dataset_service import (
-    detect_dataset_schema
+from src.services.verification_service import (
+    verify_dataset
 )
 
+from src.services.dataset_service import (
+    detect_dataset_schema,
+    get_dataset_summary,
+    get_dataset_profile
+)
 from src.services.analysis_pipeline import (
     run_analysis_pipeline
 )
 
-from components.performance_tab import (
-    create_metric_figure
-)
 # ============================================================
 # PATHS
 # ============================================================
@@ -89,36 +121,6 @@ def load_shap_file(
         )
 
     return pd.read_csv(file_path)
-
-
-def create_shap_figure(
-    df: pd.DataFrame
-):
-    """
-    Create horizontal SHAP importance chart.
-    """
-    print(df)
-    print(df.empty)
-    print(df.columns.tolist())
-    fig = px.bar(
-        df,
-        x="importance",
-        y="feature",
-        orientation="h",
-        title="Feature Importance (SHAP)"
-    )
-
-    fig.update_layout(
-        height=max(
-            700,
-            len(df) * 35
-        ),
-        yaxis=dict(
-            categoryorder="total ascending"
-        )
-    )
-
-    return fig
 
 
 # ============================================================
@@ -179,107 +181,6 @@ def load_confusion_file(
         index_col=0
     )
 
-def create_error_figure(
-    df: pd.DataFrame
-):
-    """
-    Create error breakdown chart.
-    """
-
-    chart_df = df[
-        df["metric"].isin(
-            [
-                "false_positives",
-                "false_negatives",
-            ]
-        )
-    ]
-    chart_df = chart_df.copy()
-
-    chart_df["metric"] = chart_df["metric"].replace(
-    {
-        "false_positives": "False Positives",
-        "false_negatives": "False Negatives"
-    }
-)
-
-    print(df)
-    print(df.dtypes)
-    print(type(df))
-
-    fig = px.bar(
-        chart_df,
-        x="metric",
-        y="value",
-        text="value",
-        title="Error Breakdown"
-    )
-
-    fig.update_layout(
-        title="Error Breakdown",
-        xaxis_title="Error Type",
-        yaxis_title="Count",
-        xaxis_tickangle=0,
-        height=500
-    )
-
-    return fig
-
-def create_confusion_figure(df):
-    """
-    Create confusion matrix heatmap.
-    """
-
-    # Rearrange matrix:
-    # [[TP, FN],
-    #  [FP, TN]]
-
-    matrix = [
-        [df.iloc[1, 1], df.iloc[1, 0]],
-        [df.iloc[0, 1], df.iloc[0, 0]]
-    ]
-
-    labels = [
-        ["TP", "FN"],
-        ["FP", "TN"]
-    ]
-
-    annotations = [
-        [
-            f"{labels[i][j]}<br>{matrix[i][j]}"
-            for j in range(2)
-        ]
-        for i in range(2)
-    ]
-
-    fig = px.imshow(
-        matrix,
-        x=[
-            "Positive",
-            "Negative"
-        ],
-        y=[
-            "Positive",
-            "Negative"
-        ],
-        color_continuous_scale="Blues",
-        text_auto=False,
-        aspect="equal"
-    )
-
-    fig.update_traces(
-        text=annotations,
-        texttemplate="%{text}"
-    )
-
-    fig.update_layout(
-        title="Confusion Matrix",
-        xaxis_title="Predicted Class",
-        yaxis_title="Actual Class",
-        height=550
-    )
-
-    return fig
 
 # ============================================================
 # CALLBACKS
@@ -336,35 +237,74 @@ def create_empty_figure(message):
 
     return fig
 
-def create_decision_figure(
-    df: pd.DataFrame
-):
-    """
-    Create local explanation chart.
-    """
+def create_confusion_figure(df):
+            """
+            Create confusion matrix heatmap.
+            """
 
-    print(df)
-    print(df.empty)
-    print(df.columns.tolist())
-    print(df.dtypes)
-    print(type(df))
+            # Rearrange matrix:
+            # [[TP, FN],
+            #  [FP, TN]]
 
-    fig = px.bar(
-        df,
-        x="SHAP Value",
-        y="feature",
-        orientation="h",
-        color="SHAP Value",
-        text="SHAP Value",
-        title="Local Feature Contributions"
+            matrix = [
+                [df.iloc[1, 1], df.iloc[1, 0]],
+                [df.iloc[0, 1], df.iloc[0, 0]]
+            ]
+
+            labels = [
+                ["TP", "FN"],
+                ["FP", "TN"]
+            ]
+
+            annotations = [
+                [
+                    f"{labels[i][j]}<br>{matrix[i][j]}"
+                    for j in range(2)
+                ]
+                for i in range(2)
+            ]
+
+            fig = px.imshow(
+                matrix,
+                x=[
+                    "Positive",
+                    "Negative"
+                ],
+                y=[
+                    "Positive",
+                    "Negative"
+                ],
+                color_continuous_scale="Blues",
+                text_auto=False,
+                aspect="equal"
+            )
+
+            fig.update_traces(
+                text=annotations,
+                texttemplate="%{text}"
+            )
+
+            fig.update_layout(
+                title="Confusion Matrix",
+                xaxis_title="Predicted Class",
+                yaxis_title="Actual Class",
+                height=550
+            )
+
+            return fig
+
+def generate_error_summary(metrics):
+
+    return (
+
+        f"The selected model produced "
+        f"{int(metrics['total_errors'])} incorrect predictions "
+        f"({metrics['error_rate']:.1%} error rate). "
+        f"There were "
+        f"{int(metrics['false_positives'])} false positives and "
+        f"{int(metrics['false_negatives'])} false negatives."
+
     )
-
-    fig.update_layout(
-        title="Local Feature Contributions",
-        height=500
-    )
-
-    return fig
 
 def register_callbacks(app):
 
@@ -374,6 +314,16 @@ def register_callbacks(app):
     # --------------------------------------------------------
 
     @app.callback(
+        Output(
+            "feature-summary",
+            "children"
+        ),
+
+        Output(
+            "feature-metric-cards",
+            "children"
+        ),
+
         Output(
             "shap-importance-chart",
             "figure"
@@ -404,10 +354,14 @@ def register_callbacks(app):
         top_n,
         analysis_status
     ):
+
+
         if analysis_status != (
             "Analysis completed successfully."
         ):
             return (
+                "Run the analysis to generate a feature importance summary.",
+                html.Div(),
                 create_empty_figure(
                     "Upload a dataset and run analysis."
                 ),
@@ -452,13 +406,24 @@ def register_callbacks(app):
             )
         )
 
+        summary = generate_feature_summary(
+            df,
+            model
+        )
+
+        metric_cards = build_feature_metric_cards(
+            df,
+            model,
+            top_n
+        )
+
         print("=" * 60)
         print(df.head())
         print(df.columns)
         print(df.dtypes)
         print("=" * 60)
         
-        figure = create_shap_figure(
+        figure = feature_importance_chart(
             df
         )
 
@@ -470,6 +435,8 @@ def register_callbacks(app):
             for column in df.columns
         ]
 
+        df["importance"] = df["importance"].round(4)
+
         table_data = (
             df.to_dict(
                 "records"
@@ -477,6 +444,8 @@ def register_callbacks(app):
         )
 
         return (
+            summary,
+            metric_cards,
             figure,
             table_data,
             table_columns
@@ -488,20 +457,13 @@ def register_callbacks(app):
     # --------------------------------------------------------
 
     @app.callback(
+        
         Output(
-            "false-positive-card",
+            "misclassification-summary",
             "children"
         ),
         Output(
-            "false-negative-card",
-            "children"
-        ),
-        Output(
-            "total-errors-card",
-            "children"
-        ),
-        Output(
-            "error-rate-card",
+            "misclassification-metric-cards",
             "children"
         ),
         Output(
@@ -529,19 +491,17 @@ def register_callbacks(app):
             "Analysis completed successfully."
         ):
             return (
-                "",
-                "",
-                "",
-                "",
+
+                "Run the analysis to investigate prediction errors.",
+                html.Div(),
                 create_empty_figure(
-                    "Upload a dataset and run analysis."
+                    "Run analysis first"
                 ),
                 create_empty_figure(
-                    "Upload a dataset and run analysis."
-                )
+                    "Run analysis first"
+                ),
             )
             
-        
         dataset = "uploaded"
 
         # Load error summary
@@ -558,8 +518,8 @@ def register_callbacks(app):
         )
 
         # Create error chart
-        figure = create_error_figure(
-            df
+        figure = error_breakdown_figure(
+            metrics
         )
 
         # Load confusion matrix
@@ -572,13 +532,13 @@ def register_callbacks(app):
             confusion_df
         )
 
+        
+        
         return (
-            f"{int(metrics['false_positives'])}",
-            f"{int(metrics['false_negatives'])}",
-            f"{int(metrics['total_errors'])}",
-            f"{metrics['error_rate']:.3f}",
+            generate_error_summary(metrics),
+            build_error_metric_cards(metrics),
             confusion_figure,
-            figure
+            figure,
         )
     
     # --------------------------------------------------------
@@ -587,6 +547,15 @@ def register_callbacks(app):
     # --------------------------------------------------------
 
     @app.callback(
+            
+        Output(
+            "decision-summary",
+            "children"
+        ),
+        Output(
+            "decision-metric-cards",
+            "children"
+        ),
         Output(
             "decision-chart",
             "figure"
@@ -610,18 +579,21 @@ def register_callbacks(app):
         Input(
             "decision-topn-dropdown",
             "value"
-        )
+        ),
     )
     
     def update_decision_behaviour(
         analysis_status,
         model,
         top_n,
-    ):
+        ):
         if analysis_status != (
             "Analysis completed successfully."
         ):
             return (
+
+                "Run the analysis to generate a local explanation.",
+                html.Div(),
                 create_empty_figure(
                     "Upload a dataset and run analysis."
                 ),
@@ -683,8 +655,17 @@ def register_callbacks(app):
                 "contribution": "SHAP Value"
             }
         )
+        summary = generate_decision_summary(
+            df,
+            model
+        )
 
-        figure = create_decision_figure(
+        metric_cards = build_decision_metric_cards(
+            df,
+            model,
+            top_n
+        )
+        figure = local_shap_chart(
             df
         )
 
@@ -696,6 +677,8 @@ def register_callbacks(app):
             for column in df.columns
         ]
 
+        
+
         table_data = (
             df.to_dict(
                 "records"
@@ -703,6 +686,8 @@ def register_callbacks(app):
         )
 
         return (
+            summary,
+            metric_cards,
             figure,
             table_data,
             table_columns
@@ -783,7 +768,7 @@ def register_callbacks(app):
             df = pd.read_excel(
                 io.BytesIO(decoded)
             )
-
+        
         else:
 
             return (
@@ -794,67 +779,107 @@ def register_callbacks(app):
                 [],
                 None
             )
+        
+        summary_data = get_dataset_summary(df)
+        verification = verify_dataset(df)
+        profile = get_dataset_profile(df)
+
+        recommended = verification["compatible_targets"]
+
+        recommended_text = (
+            ", ".join(recommended)
+            if recommended
+            else "None"
+        )
 
         summary = html.Div(
             [
-
                 html.Div(
                     [
-
                         html.Div(
                             "Rows",
                             className="metric-title"
                         ),
-
                         html.Div(
-                            f"{len(df):,}",
+                            f"{summary_data['rows']:,}",
                             className="metric-value"
                         )
-
                     ],
                     className="metric-card"
                 ),
-
                 html.Div(
                     [
-
                         html.Div(
                             "Columns",
                             className="metric-title"
                         ),
-
                         html.Div(
-                            str(len(df.columns)),
+                            str(summary_data["columns"]),
                             className="metric-value"
                         )
-
                     ],
                     className="metric-card"
                 ),
-
                 html.Div(
                     [
-
                         html.Div(
                             "Missing Values",
                             className="metric-title"
                         ),
-
                         html.Div(
-                            str(int(df.isna().sum().sum())),
+                            str(summary_data["missing_values"]),
                             className="metric-value"
                         )
+                    ],
+                    className="metric-card"
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            "Numerical",
+                            className="metric-title"
+                        ),
+                        html.Div(
+                            str(profile["numerical_columns"]),
+                            className="metric-value"
+                        )
+                    ],
+                    className="metric-card"
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            "Categorical",
+                            className="metric-title"
+                        ),
+                        html.Div(
+                            str(profile["categorical_columns"]),
+                            className="metric-value"
+                        )
+                    ],
+                    className="metric-card"
+                ),
+                html.Div(
+                    [
+                        html.Div(
+                            "Recommended Target",
+                            className="metric-title"
+                        ),
 
+                        html.Div(
+                            recommended_text,
+                            className="metric-value"
+                        )
                     ],
                     className="metric-card"
                 )
-
             ],
+
             className="metric-container"
         )
 
-        preview = df.head(10)
 
+        preview = df.head(10)
         columns = [
             {
                 "name": col,
@@ -862,11 +887,9 @@ def register_callbacks(app):
             }
             for col in preview.columns
         ]
-
         data = preview.to_dict(
             "records"
         )
-
         return (
             f"Uploaded: {filename}",
             "",
@@ -877,6 +900,7 @@ def register_callbacks(app):
                 orient="split"
             )
         )
+    
     
     @app.callback(
         Output(
@@ -895,121 +919,150 @@ def register_callbacks(app):
     def populate_target_dropdown(
         dataset_json
     ):
-        try:
-
-            if dataset_json is None:
-
-                return [], None
-
-            df = pd.read_json(
-                io.StringIO(dataset_json),
-                orient="split"
-            )
-
-            options = [
-                {
-                    "label": column,
-                    "value": column
-                }
-                for column in df.columns
-            ]
-
-            default_target = (
-                df.columns[0]
-            )
-
-            return (
-                options,
-                default_target
-            )
-        except Exception as e:
-            print(e)
-            raise 
-    
-    @app.callback(
-        Output(
-            "schema-summary",
-            "children"
-        ),
-        Input(
-            "uploaded-dataset-store",
-            "data"
-        ),
-        Input(
-            "target-column-dropdown",
-            "value"
-        )
-    )
-    def update_schema_summary(
-        dataset_json,
-        target_column
-    ):
-
-        if (
-            dataset_json is None
-            or target_column is None
-        ):
-            return ""
+        if dataset_json is None:
+            return [], None
 
         df = pd.read_json(
             io.StringIO(dataset_json),
             orient="split"
         )
 
-        schema = (
-            detect_dataset_schema(
-                df,
-                target_column
+        verification = verify_dataset(df)
+        compatible = verification[
+            "compatible_targets"
+        ]
+        options = []
+        for column in df.columns:
+            label = column
+            if column in compatible:
+                label = (
+                    f"⭐ {column}"
+                )
+
+            options.append(
+                {
+                    "label": label,
+                    "value": column
+                }
+            )
+        default_value = (
+            compatible[0]
+            if compatible
+            else df.columns[0]
+        )
+        return (
+            options,
+            default_value
+        ) 
+    
+
+    @app.callback(
+        Output(
+            "run-analysis-button",
+            "disabled"
+        ),
+        Input(
+            "target-column-dropdown",
+            "value"
+        )
+    )
+    def enable_run_analysis(
+        target_column
+    ):
+        """
+        Enable the analysis button only when
+        a target has been selected.
+        """
+
+        return target_column is None
+
+    @app.callback(
+        Output(
+            "dataset-inspector-table",
+            "data"
+        ),
+
+        Output(
+            "dataset-inspector-table",
+            "columns"
+        ),
+        Input(
+            "uploaded-dataset-store",
+            "data"
+        ),
+    )
+    def update_schema_summary(
+        dataset_json,
+    ):
+        if dataset_json is None:
+
+            return [], []
+        
+        df = pd.read_json(
+            io.StringIO(dataset_json),
+            orient="split"
+        )
+        profile = get_dataset_profile(df)
+
+        print("\nPROFILE:")
+        print(profile)
+
+        print("\nCOLUMN PROFILES:")
+        print(profile["column_profiles"][:2])
+
+        inspector_df = pd.DataFrame(
+            profile["column_profiles"]
+        )
+
+        print("\nDATAFRAME COLUMNS:")
+        print(inspector_df.columns.tolist())
+
+        inspector_df = inspector_df.rename(
+            columns={
+                "column": "Column",
+                "type": "Type",
+                "unique_count": "Values",
+                "sample_values": "Example",
+                "recommendation": "Recommendation"
+            }
+        )
+
+        inspector_df["Example"] = (
+            inspector_df["Example"]
+            .apply(
+                lambda values: ", ".join(map(str, values))
             )
         )
 
-        return html.Div(
-            [
+        status_map = {
+            "Compatible":
+                "🟢 Compatible",
+            "Feature":
+                "⚪ Feature"
+        }
 
-                html.P(
-                    f"Target: "
-                    f"{schema['target']}"
-                ),
-
-                html.P(
-                    f"Categorical Features: "
-                    f"{len(schema['categorical_columns'])}"
-                ),
-
-                html.P(
-                    f"Numerical Features: "
-                    f"{len(schema['numerical_columns'])}"
-                ),
-
-                html.H4(
-                    "Categorical Columns"
-                ),
-
-                html.Ul(
-                    [
-                        html.Li(col)
-                        for col in
-                        schema[
-                            "categorical_columns"
-                        ]
-                    ]
-                ),
-
-                html.H4(
-                    "Numerical Columns"
-                ),
-
-                html.Ul(
-                    [
-                        html.Li(col)
-                        for col in
-                        schema[
-                            "numerical_columns"
-                        ]
-                    ]
-                )
-            ]
+        inspector_df["Recommendation"] = (
+            inspector_df["Recommendation"]
+            .map(status_map)
         )
+
+        inspector_columns = [
+            {
+                "name": column,
+                "id": column
+            }
+            for column in inspector_df.columns
+        ]
+
+        inspector_data = (
+            inspector_df.to_dict("records")
+        )
+
+        return (
+            inspector_data,
+            inspector_columns
+        )
+    
     @app.callback(
         Output(
             "analysis-status",
@@ -1109,111 +1162,172 @@ def register_callbacks(app):
         
     @app.callback(
         Output(
-            "accuracy-chart",
+            "performance-summary",
+            "children"
+        ),
+        Output(
+            "performance-metric-cards",
+            "children"
+        ),
+        Output(
+            "performance-comparison-chart",
             "figure"
         ),
         Output(
-            "precision-chart",
-            "figure"
+            "performance-comparison-table",
+            "children"
         ),
         Output(
-            "recall-chart",
-            "figure"
-        ),
-        Output(
-            "f1-chart",
-            "figure"
-        ),
-        Output(
-            "roc-chart",
+            "roc-curve-chart",
             "figure"
         ),
         Input(
             "analysis-status",
             "children"
+        ),
+        Input(
+            "metric-selector",
+            "value"
         )
     )
-    
     def update_performance_tab(
-        analysis_status
+        analysis_status,
+        selected_metric
     ):
+        
+        print("=" * 60)
+        print("PERFORMANCE CALLBACK")
+        print("analysis_status:", analysis_status)
+        print("selected_metric:", selected_metric)
+        print("=" * 60)
 
-        if analysis_status != (
-            "Analysis completed successfully."
-        ):
+        if analysis_status != "Analysis completed successfully.":
             return (
+                "Run the analysis to generate a performance summary.",
+                html.Div(),
                 create_empty_figure(
                     "Upload a dataset and run analysis."
                 ),
+                html.Div(),
                 create_empty_figure(
                     "Upload a dataset and run analysis."
                 ),
-                create_empty_figure(
-                    "Upload a dataset and run analysis."
-                ),
-                create_empty_figure(
-                    "Upload a dataset and run analysis."
-                ),
-                create_empty_figure(
-                    "Upload a dataset and run analysis."
-                )
             )
-
         file = Path(
             "data/exports/evaluation_summary.csv"
         )
-
         if not file.exists():
             return (
+                "No evaluation results available.",
+                html.Div(),
                 create_empty_figure(
                     "No evaluation results."
                 ),
+                html.Div(),
                 create_empty_figure(
                     "No evaluation results."
                 ),
-                create_empty_figure(
-                    "No evaluation results."
-                ),
-                create_empty_figure(
-                    "No evaluation results."
-                ),
-                create_empty_figure(
-                    "No evaluation results."
-                )
             )
-        
-
         df = pd.read_csv(file)
+        table = df.copy()
 
-        return (
-
-            create_metric_figure(
-                df,
-                "accuracy",
-                "Accuracy Comparison"
-            ),
-
-            create_metric_figure(
-                df,
-                "precision",
-                "Precision Comparison"
-            ),
-
-            create_metric_figure(
-                df,
-                "recall",
-                "Recall Comparison"
-            ),
-
-            create_metric_figure(
-                df,
-                "f1_score",
-                "F1 Score Comparison"
-            ),
-
-            create_metric_figure(
-                df,
-                "roc_auc",
-                "ROC-AUC Comparison"
+        columns = [
+            {
+                "name": c,
+                "id": c
+            }
+            for c in table.columns
+        ]
+        best_model = (
+            df.sort_values(
+                by="f1_score",
+                ascending=False
             )
+            .iloc[0]
+        )
+        selected_metric = selected_metric or "accuracy"
+        metric_titles = {
+            "accuracy": "Accuracy Comparison",
+            "precision": "Precision Comparison",
+            "recall": "Recall Comparison",
+            "f1_score": "F1 Score Comparison",
+            "roc_auc": "ROC-AUC Comparison"
+        }
+        comparison_chart = performance_bar_chart(
+            df,
+            selected_metric,
+            metric_titles[selected_metric]
+        )
+        table_df = df.sort_values(
+            by="f1_score",
+            ascending=False
+        )
+        comparison_table = html.Div(
+            html.Table(
+                [
+                    html.Thead(
+                        html.Tr(
+                            [
+                                html.Th("Model"),
+                                html.Th("Accuracy"),
+                                html.Th("Precision"),
+                                html.Th("Recall"),
+                                html.Th("F1"),
+                                html.Th("ROC-AUC")
+                            ]
+                        )
+                    ),
+                    html.Tbody(
+                        [
+                            html.Tr(
+                                [
+                                    html.Td(
+                                        row["model"]
+                                        .replace("_", " ")
+                                        .title()
+                                    ),
+                                    html.Td(
+                                        f"{row['accuracy']:.3f}"
+                                    ),
+                                    html.Td(
+                                        f"{row['precision']:.3f}"
+                                    ),
+                                    html.Td(
+                                        f"{row['recall']:.3f}"
+                                    ),
+                                    html.Td(
+                                        f"{row['f1_score']:.3f}"
+                                    ),
+                                    html.Td(
+                                        f"{row['roc_auc']:.3f}"
+                                    )
+                                ]
+                            )
+                            for _, row in table_df.iterrows()
+                        ]
+                    )
+                ],
+                className="comparison-table"
+            ),
+            style={
+                "overflowX": "auto"
+            }
+        )
+        roc_chart = performance_bar_chart(
+            df,
+            "roc_auc",
+            "ROC-AUC Comparison"
+        )
+        models = [
+            "logistic_regression",
+            "random_forest"
+        ]
+
+    
+        return (
+            generate_performance_summary(df),
+            build_metric_cards(best_model),
+            comparison_chart,
+            comparison_table,
+            roc_chart
         )
