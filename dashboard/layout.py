@@ -1,5 +1,4 @@
 from dash import dcc, html
-from ui_components import create_workflow_banner
 from components.performance_tab import (
     create_performance_tab
 )
@@ -60,7 +59,6 @@ def create_layout():
                 className="dashboard-header"
 
             ),
-            create_workflow_banner(),
 
             dcc.Tabs(
                 id="main-tabs",
