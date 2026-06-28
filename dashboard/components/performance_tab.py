@@ -1,18 +1,12 @@
 from dash import dcc, html
 import pandas as pd
-import plotly.express as px
 from pathlib import Path
 import plotly.io as pio
-import plotly.graph_objects as go
 
 from ui_components import (
     create_analysis_card,
     create_card,
     create_metric_card
-)
-
-from visualisations.performance_plots import (
-    performance_bar_chart
 )
 
 pio.templates.default = "plotly"

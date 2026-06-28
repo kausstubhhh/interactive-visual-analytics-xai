@@ -1,3 +1,17 @@
+from pathlib import Path
+import sys
+# Project Root
+
+PROJECT_ROOT = (
+    Path(__file__).resolve().parent.parent
+)
+
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(
+        str(PROJECT_ROOT)
+    )
+    
+
 from dash import Dash
 import plotly.io as pio
 
@@ -25,3 +39,4 @@ if __name__ == "__main__":
     app.run(
         debug=True
     )
+

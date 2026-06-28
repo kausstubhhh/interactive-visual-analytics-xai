@@ -1,14 +1,9 @@
 from dash import dcc, html
 from dash import dash_table
-import plotly.express as px
 from ui_components import (
     create_card,
     create_analysis_card,
     create_metric_card
-)
-
-from visualisations.feature_importance import (
-    feature_importance_chart
 )
 
 def create_feature_importance_tab():
