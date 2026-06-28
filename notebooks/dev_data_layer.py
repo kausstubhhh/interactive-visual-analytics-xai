@@ -3,7 +3,6 @@ from src.data.loader import load_bank
 
 from src.data.validator import dataset_summary
 
-
 print("\nHELOC DATASET")
 print("=" * 50)
 

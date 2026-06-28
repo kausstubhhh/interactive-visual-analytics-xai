@@ -1,6 +1,6 @@
-print("TEST STARTED")
-
 from src.data.loader import load_demo_dataset
+
+print("TEST STARTED")
 
 print("IMPORT SUCCESS")
 

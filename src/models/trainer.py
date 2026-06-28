@@ -2,8 +2,6 @@
 Generic model training utilities.
 """
 
-import numpy as np
-
 
 def train_model(model, X_train, y_train):
     """
@@ -43,17 +41,10 @@ def predict_proba(model, X_test):
     if hasattr(model, "predict_proba"):
         return model.predict_proba(X_test)
 
-    raise AttributeError(
-        f"{type(model).__name__} does not support predict_proba()"
-    )
+    raise AttributeError(f"{type(model).__name__} does not support predict_proba()")
 
 
-def fit_and_predict(
-    model,
-    X_train,
-    y_train,
-    X_test
-):
+def fit_and_predict(model, X_train, y_train, X_test):
     """
     Train model and generate outputs.
 
@@ -62,24 +53,14 @@ def fit_and_predict(
     dict
     """
 
-    trained_model = train_model(
-        model,
-        X_train,
-        y_train
-    )
+    trained_model = train_model(model, X_train, y_train)
 
-    predictions = predict(
-        trained_model,
-        X_test
-    )
+    predictions = predict(trained_model, X_test)
 
-    probabilities = predict_proba(
-        trained_model,
-        X_test
-    )
+    probabilities = predict_proba(trained_model, X_test)
 
     return {
         "model": trained_model,
         "predictions": predictions,
-        "probabilities": probabilities
+        "probabilities": probabilities,
     }

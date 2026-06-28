@@ -20,10 +20,6 @@ def build_logistic_regression(random_state: int = 42):
         Configured classifier.
     """
 
-    model = LogisticRegression(
-        random_state=random_state,
-        max_iter=1000,
-        solver="lbfgs"
-    )
+    model = LogisticRegression(random_state=random_state, max_iter=1000, solver="lbfgs")
 
     return model

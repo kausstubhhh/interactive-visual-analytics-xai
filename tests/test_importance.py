@@ -1,9 +1,6 @@
 import numpy as np
 
-from src.explainability.importance import (
-    calculate_feature_importance,
-    get_top_features
-)
+from src.explainability.importance import calculate_feature_importance, get_top_features
 
 
 class MockShapValues:
@@ -14,26 +11,11 @@ class MockShapValues:
 
 def test_feature_importance_returns_dataframe():
 
-    shap_values = MockShapValues(
-        np.array(
-            [
-                [1.0, 2.0],
-                [3.0, 4.0]
-            ]
-        )
-    )
+    shap_values = MockShapValues(np.array([[1.0, 2.0], [3.0, 4.0]]))
 
-    feature_names = [
-        "feature_a",
-        "feature_b"
-    ]
+    feature_names = ["feature_a", "feature_b"]
 
-    results = (
-        calculate_feature_importance(
-            shap_values,
-            feature_names
-        )
-    )
+    results = calculate_feature_importance(shap_values, feature_names)
 
     assert len(results) == 2
 
@@ -43,32 +25,12 @@ def test_feature_importance_returns_dataframe():
 
 def test_get_top_features():
 
-    shap_values = MockShapValues(
-        np.array(
-            [
-                [1.0, 2.0],
-                [3.0, 4.0]
-            ]
-        )
-    )
+    shap_values = MockShapValues(np.array([[1.0, 2.0], [3.0, 4.0]]))
 
-    feature_names = [
-        "feature_a",
-        "feature_b"
-    ]
+    feature_names = ["feature_a", "feature_b"]
 
-    results = (
-        calculate_feature_importance(
-            shap_values,
-            feature_names
-        )
-    )
+    results = calculate_feature_importance(shap_values, feature_names)
 
-    top_features = (
-        get_top_features(
-            results,
-            top_n=1
-        )
-    )
+    top_features = get_top_features(results, top_n=1)
 
     assert len(top_features) == 1

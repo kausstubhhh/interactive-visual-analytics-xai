@@ -7,10 +7,7 @@ from pathlib import Path
 import pandas as pd
 
 
-def export_evaluation_summary(
-    results,
-    output_path
-):
+def export_evaluation_summary(results, output_path):
     """
     Export evaluation metrics to CSV.
     """
@@ -19,55 +16,32 @@ def export_evaluation_summary(
 
     output_path = Path(output_path)
 
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    df.to_csv(
-        output_path,
-        index=False
-    )
+    df.to_csv(output_path, index=False)
 
     return df
 
 
-def export_error_summary(
-    error_summary,
-    output_path
-):
+def export_error_summary(error_summary, output_path):
     """
     Export error summary to CSV.
     """
 
     df = pd.DataFrame(
-        [
-            {
-                "metric": key,
-                "value": value
-            }
-            for key, value in error_summary.items()
-        ]
+        [{"metric": key, "value": value} for key, value in error_summary.items()]
     )
 
     output_path = Path(output_path)
 
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    df.to_csv(
-        output_path,
-        index=False
-    )
+    df.to_csv(output_path, index=False)
 
     return df
 
-def export_confusion_matrix(
-    confusion_matrix,
-    output_path
-):
+
+def export_confusion_matrix(confusion_matrix, output_path):
     """
     Export confusion matrix to CSV.
     """
@@ -77,25 +51,14 @@ def export_confusion_matrix(
 
     df = pd.DataFrame(
         confusion_matrix,
-        index=[
-            "Actual Negative",
-            "Actual Positive"
-        ],
-        columns=[
-            "Predicted Negative",
-            "Predicted Positive"
-        ]
+        index=["Actual Negative", "Actual Positive"],
+        columns=["Predicted Negative", "Predicted Positive"],
     )
 
     output_path = Path(output_path)
 
-    output_path.parent.mkdir(
-        parents=True,
-        exist_ok=True
-    )
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    df.to_csv(
-        output_path
-    )
+    df.to_csv(output_path)
 
     return df

@@ -2,10 +2,7 @@ import numpy as np
 import pandas as pd
 
 
-def calculate_feature_importance(
-    shap_values,
-    feature_names
-):
+def calculate_feature_importance(shap_values, feature_names):
     """
     Calculate global SHAP feature importance.
 
@@ -30,33 +27,20 @@ def calculate_feature_importance(
 
         shap_array = shap_array[:, :, 1]
 
-    importance_scores = np.abs(
-        shap_array
-    ).mean(axis=0)
+    importance_scores = np.abs(shap_array).mean(axis=0)
 
     importance_df = pd.DataFrame(
-        {
-            "feature": feature_names,
-            "importance": importance_scores
-        }
+        {"feature": feature_names, "importance": importance_scores}
     )
 
-    importance_df = (
-        importance_df
-        .sort_values(
-            by="importance",
-            ascending=False
-        )
-        .reset_index(drop=True)
-    )
+    importance_df = importance_df.sort_values(
+        by="importance", ascending=False
+    ).reset_index(drop=True)
 
     return importance_df
 
 
-def get_top_features(
-    importance_df,
-    top_n=10
-):
+def get_top_features(importance_df, top_n=10):
     """
     Return top N features.
 
@@ -71,8 +55,4 @@ def get_top_features(
     pandas.DataFrame
     """
 
-    return (
-        importance_df
-        .head(top_n)
-        .reset_index(drop=True)
-    )
+    return importance_df.head(top_n).reset_index(drop=True)

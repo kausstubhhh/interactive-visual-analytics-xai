@@ -1,5 +1,5 @@
 metric,value
-false_positives,260.0
-false_negatives,318.0
-total_errors,578.0
-error_rate,0.2762906309751434
+false_positives,164.0
+false_negatives,523.0
+total_errors,687.0
+error_rate,0.08339402767662053

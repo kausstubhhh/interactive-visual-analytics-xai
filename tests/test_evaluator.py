@@ -1,6 +1,4 @@
-from src.evaluation.evaluator import (
-    evaluate_model
-)
+from src.evaluation.evaluator import evaluate_model
 
 
 def test_evaluator_returns_expected_sections():
@@ -9,11 +7,7 @@ def test_evaluator_returns_expected_sections():
     y_pred = [0, 1, 0, 1]
     y_proba = [0.1, 0.9, 0.2, 0.8]
 
-    results = evaluate_model(
-        y_true,
-        y_pred,
-        y_proba
-    )
+    results = evaluate_model(y_true, y_pred, y_proba)
 
     assert "metrics" in results
     assert "confusion_matrix" in results
@@ -27,13 +21,6 @@ def test_evaluator_metrics_accuracy():
     y_pred = [0, 1, 0, 1]
     y_proba = [0.1, 0.9, 0.2, 0.8]
 
-    results = evaluate_model(
-        y_true,
-        y_pred,
-        y_proba
-    )
+    results = evaluate_model(y_true, y_pred, y_proba)
 
-    assert (
-        results["metrics"]["accuracy"]
-        == 1.0
-    )
+    assert results["metrics"]["accuracy"] == 1.0

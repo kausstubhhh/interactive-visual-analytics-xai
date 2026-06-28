@@ -21,10 +21,7 @@ def build_random_forest(random_state: int = 42):
     """
 
     model = RandomForestClassifier(
-        n_estimators=200,
-        max_depth=None,
-        random_state=random_state,
-        n_jobs=-1
+        n_estimators=200, max_depth=None, random_state=random_state, n_jobs=-1
     )
 
     return model

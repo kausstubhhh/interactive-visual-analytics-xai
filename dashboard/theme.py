@@ -22,12 +22,7 @@ BORDER = "#D1D5DB"
 
 # Typography
 
-FONT_FAMILY = (
-    "'Segoe UI', "
-    "Roboto, "
-    "Arial, "
-    "sans-serif"
-)
+FONT_FAMILY = "'Segoe UI', " "Roboto, " "Arial, " "sans-serif"
 
 TITLE_SIZE = "36px"
 HEADING_SIZE = "24px"
@@ -46,6 +41,4 @@ CARD_RADIUS = "10px"
 
 # Shadow
 
-CARD_SHADOW = (
-    "0 2px 8px rgba(0,0,0,0.08)"
-)
+CARD_SHADOW = "0 2px 8px rgba(0,0,0,0.08)"

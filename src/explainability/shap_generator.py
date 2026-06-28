@@ -1,7 +1,4 @@
-def generate_shap_values(
-    explainer,
-    X_data
-):
+def generate_shap_values(explainer, X_data):
     """
     Generate SHAP values.
 
@@ -16,7 +13,4 @@ def generate_shap_values(
     shap.Explanation
     """
 
-    return explainer(
-        X_data,
-        check_additivity=False
-    )
+    return explainer(X_data, check_additivity=False)

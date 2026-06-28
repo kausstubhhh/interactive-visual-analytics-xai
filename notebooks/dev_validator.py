@@ -1,10 +1,5 @@
 from src.data.loader import load_demo_dataset
-from src.data.validator import (
-    dataset_summary,
-    get_column_names,
-    column_types,
-    missing_values_report
-)
+from src.data.validator import dataset_summary, get_column_names, column_types
 
 print("\nHELOC")
 print("=" * 60)

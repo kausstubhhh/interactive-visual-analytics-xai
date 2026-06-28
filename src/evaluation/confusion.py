@@ -5,10 +5,7 @@ Confusion matrix utilities for binary classification.
 from sklearn.metrics import confusion_matrix
 
 
-def calculate_confusion_matrix(
-    y_true,
-    y_pred
-):
+def calculate_confusion_matrix(y_true, y_pred):
     """
     Calculate confusion matrix.
 
@@ -27,16 +24,10 @@ def calculate_confusion_matrix(
          [FN, TP]]
     """
 
-    return confusion_matrix(
-        y_true,
-        y_pred
-    )
+    return confusion_matrix(y_true, y_pred)
 
 
-def extract_confusion_values(
-    y_true,
-    y_pred
-):
+def extract_confusion_values(y_true, y_pred):
     """
     Extract TN, FP, FN and TP.
 
@@ -59,14 +50,6 @@ def extract_confusion_values(
         }
     """
 
-    tn, fp, fn, tp = confusion_matrix(
-        y_true,
-        y_pred
-    ).ravel()
+    tn, fp, fn, tp = confusion_matrix(y_true, y_pred).ravel()
 
-    return {
-        "tn": int(tn),
-        "fp": int(fp),
-        "fn": int(fn),
-        "tp": int(tp)
-    }
+    return {"tn": int(tn), "fp": int(fp), "fn": int(fn), "tp": int(tp)}
