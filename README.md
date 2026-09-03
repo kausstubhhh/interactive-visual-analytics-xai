@@ -1388,4 +1388,4 @@ Classification Models**
 
 Supervisor:
 
-**Prof. Roy A. Ruddle**
+**Prof. Roy A. Ruddle | Prof. Samuel Wilson**
